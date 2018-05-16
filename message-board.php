@@ -4,12 +4,24 @@
     
     $database = new PDO('mysql:host=localhost;dbname=messageboard;charset=UTF8;',$username,$password);
    
-    if($_POST['post_title'] && $_POST['post_message'])
+    if($_POST['post_title'] && $_POST['post_message'] && $_FILES['post_image'])
     {
-        $sql = 'INSERT INTO messages (post_title,post_message) VALUES(:post_title,:post_message)';
+        $img_dir = './uploads/';
+        
+        $path_parts = pathinfo($_FILES['post_image']['name']);
+        $extension = $path_parts['extension'];
+        
+        $path_parts = pathinfo($_FILES['post_image']['tmp_name']);
+        $img_file_name = sha1($path_parts['basename']);
+        
+        $img_file_path = $img_dir.$img_file_name.".".$extension;
+        move_uploaded_file($_FILES['post_image']['tmp_name'], $img_file_path);
+            
+        $sql = 'INSERT INTO messages (post_title, post_message, post_image) VALUES(:post_title,:post_message,:post_image)';
         $statement = $database->prepare($sql);
         $statement->bindParam(':post_title',$_POST['post_title']);
         $statement->bindParam(':post_message',$_POST['post_message']);
+        $statement->bindParam(':post_image',$img_file_path);
         $statement->execute();
         $statement = null;
     }
@@ -59,6 +71,10 @@
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     </head>
     <body>
+        
+<?php
+    var_dump($img_file_path);
+?>
         <header>
     <nav class="navbar navbar-inverse navbar-static-top">
         <div class="container">
@@ -89,6 +105,7 @@
                     <th>id</th>
                     <th>タイトル</th>
                     <th>メッセージ</th>
+                    <th>画像</th>
                 </tr>
             </thead>
             <tbody>
@@ -100,12 +117,14 @@
                     $post_id = $records['id'];
                     $post_title = $records['post_title'];
                     $post_message = $records['post_message'];
+                    $post_image = $records['post_image'];
 ?>
                     <tr>
                         <form action="message-board-edit.php" method="POST">
                         <td><input type="submit" name="edit_id" value = <?php print $post_id;?>></td>
                         <td><?php print $post_title;?></td>
                         <td><?php print $post_message;?></td>
+                        <td><img src="<?php print ($post_image); ?>" alt=""></td>
                         </form>
                     </tr>
 <?php

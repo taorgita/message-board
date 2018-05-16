@@ -37,12 +37,15 @@
            
         <h3>新規投稿</h3>
         <div class="form-group">
-        <form action="message-board.php" method="POST">
+        <form action="message-board.php" method="POST" enctype="multipart/form-data">
             <label for="title">タイトル:</label>
             <input class="form-control" type="text" name="post_title" placeholder="タイトルを入力" required>
             
             <label for="content">メッセージ:</label> 
             <input class="form-control" type="text" name="post_message" placeholder="メッセージを入力" required>
+            
+            <label for="content">画像:</label> 
+            <input type="file" name="post_image">
             
             <input class="btn btn-default" type="submit" name="submit_add_post" value="投稿">
         </form>
